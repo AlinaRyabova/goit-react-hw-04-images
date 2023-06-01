@@ -2,7 +2,7 @@ import { Component } from 'react';
 import * as API from './pixabay-api/pixabay-api';
 import SearchBar from './Searchbar/Searchbar';
 import ImageGallery from './ImageGallery/ImageGallery';
-import Loader from './Loader/loader';
+import Loader from './Loader/Loader';
 import Button from './Button/Button';
 
 class App extends Component {
