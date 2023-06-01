@@ -25,18 +25,6 @@
         background-attachment: fixed;
       }
 
-      @keyframes gradient {
-        0% {
-          background-position: 0% 0%;
-        }
-        50% {
-          background-position: 100% 100%;
-        }
-        100% {
-          background-position: 0% 0%;
-        }
-      }
-
       .wave {
         background: rgb(255 255 255 / 25%);
         border-radius: 1000% 1000% 0 0;
@@ -61,28 +49,6 @@
         bottom: -2.5em;
         animation: wave 20s -1s reverse infinite;
         opacity: 0.9;
-      }
-
-      @keyframes wave {
-        2% {
-          transform: translateX(1);
-        }
-
-        25% {
-          transform: translateX(-25%);
-        }
-
-        50% {
-          transform: translateX(-50%);
-        }
-
-        75% {
-          transform: translateX(-25%);
-        }
-
-        100% {
-          transform: translateX(1);
-        }
       }
     </style>
     <noscript>You need to enable JavaScript to run this app.</noscript>
