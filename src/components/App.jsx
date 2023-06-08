@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import * as API from './pixabay-api/pixabay-api';
+import * as API from '../pixabay-api/pixabay-api';
 import SearchBar from './Searchbar/Searchbar';
 import ImageGallery from './ImageGallery/ImageGallery';
 import Loader from './Loader/Loader';
@@ -12,6 +12,7 @@ const App = () => {
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [totalPages, setTotalPages] = useState(0);
+  const [isFirstLoad, setIsFirstLoad] = useState(true);
 
   useEffect(() => {
     const addImages = async () => {
@@ -36,8 +37,10 @@ const App = () => {
       }
     };
 
-    addImages();
-  }, [searchName, currentPage]);
+    if (!isFirstLoad || searchName !== '') {
+      addImages();
+    }
+  }, [searchName, currentPage, isFirstLoad]);
 
   const loadMore = () => {
     setCurrentPage(prevPage => prevPage + 1);
@@ -47,17 +50,21 @@ const App = () => {
     setSearchName(query);
     setImages([]);
     setCurrentPage(1);
+    setIsFirstLoad(false);
   };
 
   return (
     <div>
       <SearchBar onSubmit={handleSubmit} />
-      {images.length > 0 ? <ImageGallery images={images} /> : null}
+      {!isFirstLoad && images.length > 0 ? (
+        <ImageGallery images={images} />
+      ) : null}
       {isLoading && <Loader />}
-      {error && <p>Error: {error}</p>} {/* Додано повідомлення про помилку */}
-      {images.length > 0 && totalPages !== currentPage && !isLoading && (
-        <Button onClick={loadMore} />
-      )}
+      {error && <p>Error: {error}</p>}
+      {!isFirstLoad &&
+        images.length > 0 &&
+        totalPages !== currentPage &&
+        !isLoading && <Button onClick={loadMore} />}
     </div>
   );
 };
