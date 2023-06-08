@@ -1,84 +1,65 @@
-import { Component } from 'react';
+import React, { useState, useEffect } from 'react';
 import * as API from './pixabay-api/pixabay-api';
 import SearchBar from './Searchbar/Searchbar';
 import ImageGallery from './ImageGallery/ImageGallery';
 import Loader from './Loader/Loader';
 import Button from './Button/Button';
 
-class App extends Component {
-  state = {
-    searchName: '',
-    images: [],
-    currentPage: 1,
-    error: null,
-    isLoading: false,
-    totalPages: 0,
-  };
+const App = () => {
+  const [searchName, setSearchName] = useState('');
+  const [images, setImages] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [error, setError] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [totalPages, setTotalPages] = useState(0);
 
-  componentDidUpdate(_, prevState) {
-    if (
-      prevState.searchName !== this.state.searchName ||
-      prevState.currentPage !== this.state.currentPage
-    ) {
-      this.addImages();
-    }
-  }
+  useEffect(() => {
+    const addImages = async () => {
+      try {
+        setIsLoading(true);
+        const data = await API.getImages(searchName, currentPage);
 
-  loadMore = () => {
-    this.setState(prevState => ({
-      currentPage: prevState.currentPage + 1,
-    }));
-  };
+        if (data.hits.length === 0) {
+          alert('Sorry image not found...');
+          return;
+        }
 
-  handleSubmit = query => {
-    this.setState({
-      searchName: query,
-      images: [],
-      currentPage: 1,
-    });
-  };
+        const normalizedImages = API.normalizedImages(data.hits);
 
-  addImages = async () => {
-    const { searchName, currentPage } = this.state;
-    try {
-      this.setState({ isLoading: true });
-
-      const data = await API.getImages(searchName, currentPage);
-
-      if (data.hits.length === 0) {
-        alert('Sorry image not found...');
-        return;
+        setImages(prevImages => [...prevImages, ...normalizedImages]);
+        setIsLoading(false);
+        setError('');
+        setTotalPages(Math.ceil(data.totalHits / 12));
+      } catch (error) {
+        setError('Something went wrong!');
+        setIsLoading(false);
       }
+    };
 
-      const normalizedImages = API.normalizedImages(data.hits);
+    addImages();
+  }, [searchName, currentPage]);
 
-      this.setState(state => ({
-        images: [...state.images, ...normalizedImages],
-        isLoading: false,
-        error: '',
-        totalPages: Math.ceil(data.totalHits / 12),
-      }));
-    } catch (error) {
-      this.setState({ error: 'Something went wrong!' });
-    } finally {
-      this.setState({ isLoading: false });
-    }
+  const loadMore = () => {
+    setCurrentPage(prevPage => prevPage + 1);
   };
 
-  render() {
-    const { images, isLoading, currentPage, totalPages } = this.state;
+  const handleSubmit = query => {
+    setSearchName(query);
+    setImages([]);
+    setCurrentPage(1);
+  };
 
-    return (
-      <div>
-        <SearchBar onSubmit={this.handleSubmit} />
-        {images.length > 0 ? <ImageGallery images={images} /> : null}
-        {isLoading && <Loader />}
-        {images.length > 0 && totalPages !== currentPage && !isLoading && (
-          <Button onClick={this.loadMore} />
-        )}
-      </div>
-    );
-  }
-}
+  return (
+    <div>
+      <SearchBar onSubmit={handleSubmit} />
+      {images.length > 0 ? <ImageGallery images={images} /> : null}
+      {isLoading && <Loader />}
+      {error && <p>Error: {error}</p>} {/* Додано повідомлення про помилку */}
+      {images.length > 0 && totalPages !== currentPage && !isLoading && (
+        <Button onClick={loadMore} />
+      )}
+    </div>
+  );
+};
 
 export default App;

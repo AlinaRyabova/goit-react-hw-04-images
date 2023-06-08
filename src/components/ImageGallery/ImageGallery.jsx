@@ -7,8 +7,8 @@ import ImageGalleryItem from './../ImageGalleryItem/ImageGalleryItem';
 export const ImageGallery = ({ images }) => {
   return (
     <List>
-      {images.map(image => (
-        <ImageGalleryItem key={image.id} image={image} />
+      {images.map((image, index) => (
+        <ImageGalleryItem key={`${image.id}-${index}`} image={image} />
       ))}
     </List>
   );
